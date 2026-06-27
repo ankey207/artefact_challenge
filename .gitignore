@@ -1,0 +1,41 @@
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Tests, lint and coverage
+.pytest_cache/
+.ruff_cache/
+.pytest-tmp/
+.phase3-test-tmp/
+.test-tmp*/
+.coverage
+htmlcov/
+
+# Query result cache
+data/query_cache.sqlite3
+data/query_cache.sqlite3-shm
+data/query_cache.sqlite3-wal
+
+# Documentation and derived datasets: keep only the source PDF
+docs/*
+!docs/EDAN_2025_RESULTAT_NATIONAL_DETAILS.pdf
+
+# Claude/Codex internal
+.claude/
+/.agents/
+
+# OS
+.DS_Store
+Thumbs.db

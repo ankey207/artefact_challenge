@@ -1,0 +1,475 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Côte d'Ivoire 2025 Legislative Elections — Premium UI
+   Palette  · #0A0A0A · #1A1A1A · #FF4B2B · #FF8C42 · #F2F0EB · #FFFFFF
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
+
+/* ── Design tokens ────────────────────────────────────────────────────────── */
+:root {
+  --c-bg:        #1E1C2E;
+  --c-surface:   #272540;
+  --c-surface-2: #302D4E;
+  --c-border:    #3A3858;
+  --c-border-2:  #4A4870;
+  --c-red:       #FF4B2B;
+  --c-orange:    #FF8C42;
+  --c-beige:     #F2F0EB;
+  --c-muted:     #7A7A7A;
+  --c-muted-2:   #555555;
+  --c-white:     #FFFFFF;
+
+  --gradient:    linear-gradient(135deg, #FF4B2B 0%, #FF8C42 100%);
+  --gradient-v:  linear-gradient(180deg, #FF4B2B 0%, #FF8C42 100%);
+  --glow-red:    0 0 24px rgba(255, 75, 43, 0.18);
+
+  --radius-sm:   6px;
+  --radius:      10px;
+  --radius-lg:   14px;
+  --radius-xl:   18px;
+
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Global reset ─────────────────────────────────────────────────────────── */
+/* Do NOT apply to *, as that overrides Streamlit's Material Icons font and
+   turns icon glyphs into raw text (e.g. "keyboard_arrow_down"). Target only
+   text-bearing elements explicitly. */
+html, body,
+h1, h2, h3, h4, h5, h6,
+p, li, a, span, label, caption,
+div, section, article,
+input, textarea, select, button,
+.stMarkdown, .stText {
+  font-family: var(--font) !important;
+  box-sizing: border-box;
+}
+
+/* Restore icon fonts — never override elements that carry Streamlit glyphs */
+.material-icons,
+.material-symbols-rounded,
+.material-symbols-outlined,
+[data-testid="stIconMaterial"],
+[class*="Icon"],
+[class*="icon"] {
+  font-family: 'Material Symbols Rounded', 'Material Icons', sans-serif !important;
+}
+
+/* ── App shell ────────────────────────────────────────────────────────────── */
+html, body {
+  background-color: var(--c-bg) !important;
+}
+
+.stApp,
+.stApp > div,
+section.main,
+section.main > div,
+[data-testid="stAppViewContainer"],
+[data-testid="stAppViewContainer"] > section {
+  background-color: var(--c-bg) !important;
+}
+
+[data-testid="stHeader"] {
+  background-color: var(--c-bg) !important;
+  border-bottom: 1px solid var(--c-border) !important;
+}
+
+[data-testid="stToolbar"] {
+  right: 1rem !important;
+}
+
+.main .block-container {
+  padding-top: 1.75rem !important;
+  padding-bottom: 4rem !important;
+  max-width: 860px !important;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar              { width: 4px; height: 4px; }
+::-webkit-scrollbar-track        { background: var(--c-bg); }
+::-webkit-scrollbar-thumb        { background: var(--c-border-2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover  { background: var(--c-muted); }
+
+/* ── Typography — headings ────────────────────────────────────────────────── */
+h1 {
+  font-weight: 900 !important;
+  letter-spacing: 0.055em !important;
+  text-transform: uppercase !important;
+  background: var(--gradient) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  line-height: 1.12 !important;
+  margin: 0 !important;
+}
+
+h2 {
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  color: var(--c-beige) !important;
+  font-size: 1.1rem !important;
+}
+
+h3, h4 {
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  color: var(--c-beige) !important;
+  font-size: 0.9rem !important;
+}
+
+/* ── Body text ────────────────────────────────────────────────────────────── */
+p, li, span, label {
+  color: var(--c-beige) !important;
+  line-height: 1.75 !important;
+  font-weight: 400 !important;
+}
+
+.stMarkdown p {
+  color: var(--c-beige) !important;
+}
+
+/* Caption */
+small,
+[data-testid="stCaptionContainer"],
+.stCaptionContainer {
+  color: var(--c-muted) !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.025em !important;
+}
+
+/* Inline code */
+code {
+  background: var(--c-surface-2) !important;
+  color: var(--c-orange) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: 4px !important;
+  padding: 0.1em 0.4em !important;
+  font-size: 0.85em !important;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────────────── */
+[data-testid="stSidebar"] {
+  background-color: var(--c-surface) !important;
+  border-right: 1px solid var(--c-border) !important;
+}
+
+[data-testid="stSidebar"]::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: var(--gradient);
+  margin-bottom: 0.5rem;
+}
+
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 {
+  font-size: 0.62rem !important;
+  letter-spacing: 0.15em !important;
+  color: var(--c-muted) !important;
+  margin-top: 1.2rem !important;
+  margin-bottom: 0.4rem !important;
+}
+
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] .stMarkdown p {
+  font-size: 0.84rem !important;
+  color: var(--c-beige) !important;
+}
+
+[data-testid="stSidebar"] .stMarkdown li {
+  font-size: 0.82rem !important;
+  color: var(--c-muted) !important;
+}
+
+/* ── Chat messages ────────────────────────────────────────────────────────── */
+[data-testid="stChatMessage"] {
+  background-color: var(--c-surface) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 1rem 1.25rem !important;
+  margin-bottom: 0.6rem !important;
+  transition: border-color var(--transition) !important;
+}
+
+[data-testid="stChatMessage"]:hover {
+  border-color: var(--c-border-2) !important;
+}
+
+/* User — left accent bar red */
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
+  border-left: 3px solid var(--c-red) !important;
+  background-color: var(--c-surface-2) !important;
+}
+
+/* Assistant — left accent bar orange */
+[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) {
+  border-left: 3px solid var(--c-orange) !important;
+}
+
+/* Avatar icons */
+[data-testid="chatAvatarIcon-user"] > div,
+[data-testid="chatAvatarIcon-user"] svg {
+  background: var(--gradient) !important;
+  fill: var(--c-white) !important;
+  border-radius: 50% !important;
+}
+
+/* ── Chat input — sticky bottom wrapper ───────────────────────────────────── */
+
+/* Streamlit's sticky footer container */
+[data-testid="stBottom"],
+[data-testid="stBottom"] > div,
+.stChatFloatingInputContainer,
+.stChatFloatingInputContainer > div {
+  background-color: var(--c-bg) !important;
+  border-top: 1px solid var(--c-border) !important;
+}
+
+/* Inner padding zone above the input */
+[data-testid="stBottom"] > div > div {
+  background-color: transparent !important;
+}
+
+/* ── Chat input field ─────────────────────────────────────────────────────── */
+[data-testid="stChatInput"] {
+  background-color: var(--c-surface) !important;
+  border: 1px solid var(--c-border-2) !important;
+  border-radius: var(--radius-xl) !important;
+  transition: border-color var(--transition), box-shadow var(--transition) !important;
+}
+
+[data-testid="stChatInput"]:focus-within {
+  border-color: var(--c-orange) !important;
+  box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.12) !important;
+}
+
+[data-testid="stChatInput"] textarea {
+  background: transparent !important;
+  color: var(--c-beige) !important;
+  font-size: 0.93rem !important;
+  caret-color: var(--c-orange) !important;
+}
+
+[data-testid="stChatInput"] textarea::placeholder {
+  color: var(--c-muted-2) !important;
+}
+
+[data-testid="stChatInput"] button {
+  background: var(--gradient) !important;
+  border-radius: 10px !important;
+  border: none !important;
+  transition: opacity var(--transition), transform var(--transition) !important;
+}
+
+[data-testid="stChatInput"] button:hover {
+  opacity: 0.85 !important;
+  transform: scale(1.04) !important;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.stButton > button,
+.stFormSubmitButton > button {
+  background: var(--gradient) !important;
+  color: var(--c-white) !important;
+  border: none !important;
+  border-radius: var(--radius) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  font-size: 0.74rem !important;
+  padding: 0.55rem 1.5rem !important;
+  transition: opacity var(--transition), transform var(--transition), box-shadow var(--transition) !important;
+  box-shadow: var(--glow-red) !important;
+}
+
+.stButton > button:hover,
+.stFormSubmitButton > button:hover {
+  opacity: 0.88 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 24px rgba(255, 75, 43, 0.28) !important;
+}
+
+.stButton > button:active,
+.stFormSubmitButton > button:active {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+}
+
+/* ── Text / Textarea inputs ───────────────────────────────────────────────── */
+.stTextInput input,
+.stTextArea textarea {
+  background-color: var(--c-surface-2) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: var(--radius) !important;
+  color: var(--c-beige) !important;
+  font-size: 0.91rem !important;
+  caret-color: var(--c-orange) !important;
+  transition: border-color var(--transition), box-shadow var(--transition) !important;
+}
+
+.stTextInput input:focus,
+.stTextArea textarea:focus {
+  border-color: var(--c-orange) !important;
+  box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.18) !important;
+  outline: none !important;
+}
+
+.stTextInput input::placeholder,
+.stTextArea textarea::placeholder {
+  color: var(--c-muted-2) !important;
+}
+
+.stTextInput label,
+.stTextArea label {
+  font-weight: 600 !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+  color: var(--c-muted) !important;
+}
+
+/* ── Radio ────────────────────────────────────────────────────────────────── */
+[data-testid="stRadio"] label {
+  color: var(--c-beige) !important;
+  font-size: 0.9rem !important;
+  cursor: pointer !important;
+  transition: color var(--transition) !important;
+}
+
+[data-testid="stRadio"] label:hover {
+  color: var(--c-white) !important;
+}
+
+/* ── Expanders ────────────────────────────────────────────────────────────── */
+[data-testid="stExpander"] {
+  background-color: var(--c-surface) !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: var(--radius) !important;
+  overflow: hidden !important;
+}
+
+[data-testid="stExpander"] summary {
+  color: var(--c-muted) !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+  padding: 0.7rem 1rem !important;
+}
+
+[data-testid="stExpander"] summary:hover {
+  color: var(--c-beige) !important;
+}
+
+[data-testid="stExpander"] details > div {
+  border-top: 1px solid var(--c-border) !important;
+}
+
+/* ── Code blocks ──────────────────────────────────────────────────────────── */
+pre, .stCode pre {
+  background-color: #0D0D0D !important;
+  border: 1px solid var(--c-border) !important;
+  border-radius: var(--radius) !important;
+  font-size: 0.8rem !important;
+  line-height: 1.6 !important;
+}
+
+/* ── DataFrames ───────────────────────────────────────────────────────────── */
+[data-testid="stDataFrame"] {
+  border: 1px solid var(--c-border) !important;
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden !important;
+}
+
+[data-testid="stDataFrame"] table th {
+  background: var(--c-surface-2) !important;
+  color: var(--c-muted) !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  font-weight: 700 !important;
+  border-bottom: 1px solid var(--c-border) !important;
+}
+
+[data-testid="stDataFrame"] table td {
+  color: var(--c-beige) !important;
+  font-size: 0.85rem !important;
+  border-bottom: 1px solid var(--c-border) !important;
+}
+
+/* ── Containers with border (st.container(border=True)) ───────────────────── */
+[data-testid="stVerticalBlockBorderWrapper"] {
+  background-color: var(--c-surface) !important;
+  border: 1px solid var(--c-border-2) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+/* ── Alerts & notifications ───────────────────────────────────────────────── */
+[data-testid="stNotification"] {
+  border-radius: var(--radius) !important;
+  font-size: 0.85rem !important;
+}
+
+/* Success pill */
+[data-testid="stNotification"][kind="success"],
+.stSuccess {
+  background-color: rgba(52, 199, 89, 0.08) !important;
+  border: 1px solid rgba(52, 199, 89, 0.25) !important;
+  color: #34C759 !important;
+}
+
+/* Warning */
+[data-testid="stNotification"][kind="warning"],
+.stWarning {
+  background-color: rgba(255, 140, 66, 0.08) !important;
+  border: 1px solid rgba(255, 140, 66, 0.25) !important;
+  color: var(--c-orange) !important;
+}
+
+/* Error */
+[data-testid="stNotification"][kind="error"],
+.stError {
+  background-color: rgba(255, 75, 43, 0.08) !important;
+  border: 1px solid rgba(255, 75, 43, 0.25) !important;
+  color: var(--c-red) !important;
+}
+
+/* ── Spinner ──────────────────────────────────────────────────────────────── */
+[data-testid="stSpinner"] > div {
+  border-top-color: var(--c-orange) !important;
+}
+
+/* ── Columns separator ────────────────────────────────────────────────────── */
+[data-testid="stVerticalBlock"] [data-testid="stVerticalBlock"] + [data-testid="stVerticalBlock"] {
+  border-left: 1px solid var(--c-border);
+}
+
+/* ── Plotly charts ────────────────────────────────────────────────────────── */
+.stPlotlyChart {
+  border: 1px solid var(--c-border) !important;
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden !important;
+  background: var(--c-surface) !important;
+}
+
+/* ── Image in header ──────────────────────────────────────────────────────── */
+[data-testid="stImage"] img {
+  border-radius: var(--radius) !important;
+}
+
+/* ── Thin accent rule below page title ────────────────────────────────────── */
+.block-container > div:first-child::after {
+  content: '';
+  display: block;
+  height: 2px;
+  background: var(--gradient);
+  border-radius: 1px;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  opacity: 0.6;
+}
