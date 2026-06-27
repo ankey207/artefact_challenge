@@ -107,9 +107,11 @@ Le contenu brut n'est envoyé à Langfuse que si `EDAN_LANGFUSE_CAPTURE_CONTENT=
 Le dashboard Langfuse remplace l'ancien dashboard local et expose les traces,
 sessions, coûts, latences, erreurs, feedbacks et scores.
 
-TTFT, TPOT, files d'attente, préemptions et saturation GPU ne sont pas
-mesurables avec l'intégration DeepSeek non-streaming et hébergée. Ces champs
-sont explicitement marqués indisponibles au lieu d'être estimés.
+Le streaming est activé pour les appels texte DeepSeek utilisés par la réponse
+finale. Les traces Langfuse incluent `ttft_ms` (time to first token), `tpot_ms`
+(time per output token), tokens, coût et latence par étape. Les appels JSON
+internes de routage/génération SQL restent non-streamés pour préserver la
+validation stricte des sorties structurées.
 
 ### Versionnement des prompts
 
@@ -144,10 +146,22 @@ Langfuse.
 ## Fonctionnalités
 
 - Agrégations, classements, graphiques sur les candidats, partis, régions.
+- Réponse finale streamée dans l'interface Streamlit quand le fournisseur le permet.
 - Fuzzy matching : « Tiapum » → Tiapoum, « R.H.D.P » → RHDP, « Agnebi Tiassa » → AGNEBY-TIASSA.
 - Réponses narratives via RAG hybride (60 % embeddings + 40 % mots-clés).
+- Provenance RAG affichée avec page PDF, `source_type`, `source_id` et `chunk_id`.
 - Détection des prompts hors périmètre et des tentatives adversariales.
 - Réponses dans la langue de l'utilisateur (FR, EN, ES, AR, PT, …).
+
+### Affichage des tableaux SQL
+
+L'agent retourne toujours une réponse narrative courte. Le tableau SQL n'est pas
+affiché systématiquement : il apparaît uniquement quand la demande utilisateur
+le justifie explicitement, par exemple avec « tableau », « classement »,
+« liste », « top 10 » ou « ranking ». Ce choix garde l'interface lisible pour
+les questions factuelles simples, tout en conservant les tableaux pour les
+questions analytiques où ils sont réellement utiles. Les graphiques restent
+également générés uniquement sur demande explicite.
 
 ## Vues SQL exposées à l'agent
 
@@ -324,49 +338,53 @@ Le module `ai_engineer_app/entity_resolver.py` :
 
 ## Suite d'évaluation
 
-30 cas de test répartis en 10 catégories :
+42 cas de test répartis en 11 catégories :
 
 | Catégorie | N | Ce qui est testé |
 |---|---|---|
 | `routing` | 5 | SQL vs RAG, pré-routage déterministe |
-| `security` | 5 | Résistance aux prompts adversariaux |
+| `security` | 7 | Résistance aux prompts adversariaux |
 | `facts` | 3 | Précision des réponses factuelles |
 | `aggregation` | 3 | Exactitude numérique (± tolérance) |
 | `sql` | 3 | Validité du SQL généré |
 | `fidelity` | 3 | Absence de hallucinations (règles déterministes) |
 | `retrieval` | 2 | RAG : chunks pertinents récupérés |
-| `citation` | 1 | Réponse ancrée dans les chunks |
-| `conversation` | 2 | Mémoire multi-tours |
+| `citation` | 4 | Réponse ancrée dans les chunks + pages/source_id/chunk_id |
+| `conversation` | 7 | Mémoire multi-tours, ellipses, corrections et comparaisons |
 | `latency` | 3 | Réponse < 12 s |
+| `quality` | 2 | Pertinence, complétude et concision |
 
 ### Lancer les évaluations
 
 ```powershell
-# Suite complète (34 cas)
-python evals/run_evals.py
+# Suite complète (42 cas)
+.venv\Scripts\python.exe evals\run_evals.py --langfuse-run-name edan-eval-main-v1
 
 # Une seule catégorie
-python evals/run_evals.py --category routing
+.venv\Scripts\python.exe evals\run_evals.py --category routing --langfuse-run-name edan-eval-routing-v1
 
-# Un seul cas
-python evals/run_evals.py --id FA_03
-
-# Les résultats sont affichés dans la page Evaluation de l'application
+# Avec juge LLM optionnel
+.venv\Scripts\python.exe evals\run_evals.py --llm-judge --langfuse-run-name edan-eval-judge-v1
 ```
+
+Les résultats sont envoyés dans Langfuse sous forme de dataset runs et de
+scores natifs. Aucun rapport local ni page Streamlit dédiée n'est nécessaire.
 
 ---
 
 ## Intégration continue
 
-Le workflow `.github/workflows/ci.yml` comprend trois jobs :
+Le workflow `.github/workflows/ci.yml` comprend deux jobs :
 
 | Job | Déclencheur | Durée estimée |
 |---|---|---|
-| `lint` — ruff check + format | Push / PR | ~15 s |
-| `test` — pytest tests/ | Push / PR (après lint) | ~30 s |
-| `evals` — suite 30 cas | `workflow_dispatch` manuel uniquement | ~5 min |
+| `test` — compileall + pytest | Push / PR | ~30 s |
+| `evals` — suite 42 cas | `workflow_dispatch` manuel uniquement | ~5 min |
 
-Le job `evals` nécessite le secret `DEEPSEEK_API_KEY` configuré dans les paramètres du dépôt GitHub et le flag `run_evals: true` à l'exécution manuelle.
+Le job `evals` nécessite les secrets `DEEPSEEK_API_KEY`,
+`LANGFUSE_PUBLIC_KEY` et `LANGFUSE_SECRET_KEY` configurés dans les paramètres
+du dépôt GitHub. Il ne s'exécute que manuellement avec `run_evals=true`.
+Le champ optionnel `eval_category` permet de lancer une seule catégorie.
 
 ---
 
@@ -379,13 +397,10 @@ Le job `evals` nécessite le secret `DEEPSEEK_API_KEY` configuré dans les param
 | LLM non déterministe | L'agent peut générer un SQL légèrement différent à chaque appel ; les résultats peuvent varier pour les requêtes complexes |
 | Listing des partis tronqué | Avec une question ouverte « quels partis ont participé ? », le LLM peut ajouter spontanément `LIMIT 30` → 43 partis ne sont pas tous listés en une réponse |
 | Corpus RAG tabulaire uniquement | Les chunks RAG sont des lignes converties en texte ; il n'existe pas de texte narratif dans le PDF source pour les questions de contexte électoral général |
-| Pas de streaming | Les réponses sont retournées en bloc (pas de streaming token par token) |
+| Streaming partiel | La réponse finale est streamée ; les appels JSON internes de routage, contextualisation et génération SQL restent non-streamés pour garantir des sorties structurées validables |
 | Langue de l'interface | L'UI Streamlit est en français ; l'agent répond dans la langue de l'utilisateur (FR/EN/ES/AR/PT) |
 | Modèle local offline uniquement | Le modèle d'embedding (`paraphrase-multilingual-MiniLM-L12-v2`) doit être téléchargé une première fois (~470 MB) |
 
 ### Prochaines étapes envisagées
 
-- **Streaming LLM** — affichage progressif de la réponse dans Streamlit
-- **Export PDF du rapport d'évaluation** — pour faciliter la revue périodique
 - **Compression auto du contexte** — pour les conversations longues dépassant la fenêtre de contexte du LLM
-- **Tests de régression automatiques en CI** — activer le job `evals` sur chaque push avec un cache des résultats LLM

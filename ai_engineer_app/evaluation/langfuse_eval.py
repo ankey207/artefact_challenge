@@ -30,6 +30,18 @@ def _case_expected_output(case: dict[str, Any]) -> dict[str, Any]:
     return {key: value for key, value in case.items() if key not in ignored and not key.startswith("_")}
 
 
+def _case_metadata(case: dict[str, Any]) -> dict[str, Any]:
+    turns = case.get("turns") or []
+    return {
+        "case_id": str(case.get("id", "unknown")),
+        "category": case.get("category", "unknown"),
+        "question": str(case.get("question") or "")[:180],
+        "turn_count": len(turns),
+        "has_ground_truth": bool(case.get("ground_truth")),
+        "source": "evals/test_cases.json",
+    }
+
+
 def get_langfuse_client() -> Any | None:
     if not is_langfuse_enabled():
         return None
@@ -94,12 +106,7 @@ def sync_dataset(
             id=_stable_item_id(case_id),
             input=_case_input(case),
             expected_output=_case_expected_output(case),
-            metadata={
-                "case": case,
-                "case_id": case_id,
-                "category": case.get("category", "unknown"),
-                "source": "evals/test_cases.json",
-            },
+            metadata=_case_metadata(case),
         )
     client.flush()
     return client.get_dataset(dataset_name)

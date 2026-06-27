@@ -188,8 +188,30 @@ def retrieval_hit_at_k(
 # ---------------------------------------------------------------------------
 
 
-def citation_present(answer: str, chunks: list[dict]) -> dict[str, Any]:
-    """Check if any source page from retrieved chunks is referenced in *answer*."""
+_PAGE_CITATION_RE = re.compile(r"(?:p\.?|page)\s*([0-9]{1,4})", re.IGNORECASE)
+
+
+def _extract_cited_pages(answer: str) -> list[int]:
+    pages = {int(match.group(1)) for match in _PAGE_CITATION_RE.finditer(answer or "")}
+    return sorted(pages)
+
+
+def citation_present(
+    answer: str,
+    chunks: list[dict],
+    *,
+    expected_pages: list[int] | None = None,
+    expected_source_ids: list[str] | None = None,
+) -> dict[str, Any]:
+    """
+    Check whether answer citations are faithful to retrieved evidence.
+
+    A passing citation result requires:
+    - at least one page citation in the answer;
+    - cited pages must be supported by retrieved chunks;
+    - expected pages/source ids, when provided by the test case, must be covered;
+    - retrieved chunks must expose row-level provenance fields.
+    """
     if not chunks:
         return {"score": 0.0, "source_pages": [], "pages_cited": [], "pass": False}
 
@@ -197,15 +219,51 @@ def citation_present(answer: str, chunks: list[dict]) -> dict[str, Any]:
     if not source_pages:
         return {"score": 0.0, "source_pages": [], "pages_cited": [], "pass": False}
 
-    answer_lower = answer.lower()
-    pages_cited = [p for p in source_pages if str(p) in answer or f"p.{p}" in answer or f"page {p}" in answer_lower]
+    cited_pages = _extract_cited_pages(answer)
+    supported_cited_pages = [page for page in cited_pages if page in source_pages]
+    unsupported_cited_pages = [page for page in cited_pages if page not in source_pages]
+    expected_pages = [int(page) for page in (expected_pages or [])]
+    missing_expected_pages = [page for page in expected_pages if page not in supported_cited_pages]
 
-    score = len(pages_cited) / len(source_pages) if source_pages else 0.0
+    retrieved_source_ids = {
+        str(c.get("source_id") or (c.get("provenance") or {}).get("source_id"))
+        for c in chunks
+        if c.get("source_id") or (c.get("provenance") or {}).get("source_id")
+    }
+    expected_source_ids = [str(item) for item in (expected_source_ids or [])]
+    missing_expected_source_ids = [item for item in expected_source_ids if item not in retrieved_source_ids]
+
+    provenance_complete = all(
+        bool(
+            c.get("chunk_id")
+            and (c.get("source_id") or (c.get("provenance") or {}).get("source_id"))
+            and (c.get("source_type") or (c.get("provenance") or {}).get("source_type"))
+            and c.get("source_page") is not None
+        )
+        for c in chunks
+    )
+
+    criteria = [
+        bool(supported_cited_pages),
+        not unsupported_cited_pages,
+        not missing_expected_pages,
+        not missing_expected_source_ids,
+        provenance_complete,
+    ]
+    score = sum(1 for item in criteria if item) / len(criteria)
     return {
         "score": round(score, 3),
         "source_pages": source_pages,
-        "pages_cited": pages_cited,
-        "pass": len(pages_cited) > 0,
+        "pages_cited": cited_pages,
+        "supported_cited_pages": supported_cited_pages,
+        "unsupported_cited_pages": unsupported_cited_pages,
+        "expected_pages": expected_pages,
+        "missing_expected_pages": missing_expected_pages,
+        "expected_source_ids": expected_source_ids,
+        "missing_expected_source_ids": missing_expected_source_ids,
+        "provenance_complete": provenance_complete,
+        "retrieved_source_ids": sorted(retrieved_source_ids)[:20],
+        "pass": all(criteria),
     }
 
 

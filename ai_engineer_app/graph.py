@@ -780,7 +780,8 @@ _RAG_NARRATIVE_SYSTEM = (
     "You are a concise election data analyst. Based ONLY on the provided text "
     "chunks from the EDAN 2025 election dataset, answer the user's question directly. "
     "Be factual and specific. When a chunk mentions a page number, cite it as "
-    "'(page N)'. Do not invent information not in the chunks. "
+    "'(page N)'. When the context includes source/chunk identifiers, preserve them "
+    "only when they help audit a specific claim. Do not invent information not in the chunks. "
     "Reply in the same language as the user's question."
 )
 

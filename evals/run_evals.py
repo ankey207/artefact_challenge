@@ -86,12 +86,23 @@ def _load_cases(path: Path) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
-def _run_pipeline(question: str, history: list[dict]) -> tuple[dict, float]:
+def _run_pipeline(
+    question: str,
+    history: list[dict],
+    *,
+    entity_memory: dict | None = None,
+    conversation_memory: dict | None = None,
+) -> tuple[dict, float]:
     """Call answer_question() and return (result, latency_ms)."""
     from ai_engineer_app.graph import answer_question
 
     t0 = time.perf_counter()
-    result = answer_question(question, history=history)
+    result = answer_question(
+        question,
+        history=history,
+        entity_memory=entity_memory or {},
+        conversation_memory=conversation_memory or {},
+    )
     latency_ms = (time.perf_counter() - t0) * 1_000
     return result, latency_ms
 
@@ -100,14 +111,23 @@ def _execute_case(case: dict) -> tuple[dict, float]:
     turns: list[dict] = case.get("turns", [])
     if turns:
         history: list[dict] = []
+        entity_memory: dict = {}
+        conversation_memory: dict = {}
         latency_ms = 0.0
         last_result: dict = {}
         for turn in turns:
             q = turn.get("question", "")
-            last_result, last_lat = _run_pipeline(q, history)
+            last_result, last_lat = _run_pipeline(
+                q,
+                history,
+                entity_memory=entity_memory,
+                conversation_memory=conversation_memory,
+            )
             latency_ms += last_lat
             history.append({"role": "user", "content": q})
             history.append({"role": "assistant", "content": last_result.get("answer", "")})
+            if isinstance(last_result.get("conversation_memory"), dict):
+                conversation_memory = last_result["conversation_memory"]
         return last_result, latency_ms
     return _run_pipeline(case.get("question", ""), [])
 

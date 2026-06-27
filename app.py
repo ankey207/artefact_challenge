@@ -288,8 +288,17 @@ if question:
             with st.expander(f"Sources ({len(rag_results)} excerpt(s) — {page_label})"):
                 for i, chunk in enumerate(rag_results, 1):
                     page = chunk.get("source_page", "?")
+                    source_type = chunk.get("source_type") or (chunk.get("provenance") or {}).get("source_type")
+                    source_id = chunk.get("source_id") or (chunk.get("provenance") or {}).get("source_id")
+                    chunk_id = chunk.get("chunk_id") or (chunk.get("provenance") or {}).get("chunk_id")
                     excerpt = chunk.get("chunk_text", "")[:200]
                     st.markdown(f"**Excerpt {i}** — page {page}")
+                    st.caption(
+                        "Provenance: "
+                        f"`source_type={source_type or 'n/a'}` · "
+                        f"`source_id={source_id or 'n/a'}` · "
+                        f"`chunk_id={chunk_id or 'n/a'}`"
+                    )
                     st.caption(excerpt + ("…" if len(chunk.get("chunk_text", "")) > 200 else ""))
 
         trace_id = result.get("trace_id")

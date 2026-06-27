@@ -140,7 +140,12 @@ def grade_retrieval(case: dict, result: dict, *, k: int = 5) -> dict[str, Any]:
 def grade_citation(case: dict, result: dict) -> dict[str, Any]:
     answer = result.get("answer", "")
     chunks = result.get("rag_results") or []
-    metrics = citation_present(answer, chunks)
+    metrics = citation_present(
+        answer,
+        chunks,
+        expected_pages=case.get("expected_source_pages") or [],
+        expected_source_ids=case.get("expected_source_ids") or [],
+    )
     return {
         **_base(case["id"], "citation", metrics["pass"], metrics["score"]),
         **metrics,

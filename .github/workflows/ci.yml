@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      run_evals:
+        description: "Run the Langfuse evaluation suite"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      eval_category:
+        description: "Optional eval category to run"
+        required: false
+        default: ""
+        type: string
+
+jobs:
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pytest python-docx
+
+      - name: Compile Python sources
+        run: python -m compileall -q ai_engineer_app app.py evals tests
+
+      - name: Run unit tests
+        run: python -m pytest -q -p no:cacheprovider
+
+  evals:
+    name: Langfuse regression evals
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && inputs.run_evals == 'true'
+
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+      LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+      LANGFUSE_BASE_URL: ${{ vars.LANGFUSE_BASE_URL || 'https://cloud.langfuse.com' }}
+      EDAN_LANGFUSE_ENABLED: "true"
+      EDAN_LANGFUSE_PROMPTS_ENABLED: "true"
+      EDAN_LANGFUSE_PROMPT_LABEL: "production"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Verify required secrets
+        run: |
+          test -n "$DEEPSEEK_API_KEY"
+          test -n "$LANGFUSE_PUBLIC_KEY"
+          test -n "$LANGFUSE_SECRET_KEY"
+
+      - name: Run full evaluation suite
+        if: inputs.eval_category == ''
+        run: python evals/run_evals.py --langfuse-run-name "ci-${{ github.run_id }}-${{ github.run_attempt }}"
+
+      - name: Run selected evaluation category
+        if: inputs.eval_category != ''
+        run: python evals/run_evals.py --category "${{ inputs.eval_category }}" --langfuse-run-name "ci-${{ inputs.eval_category }}-${{ github.run_id }}-${{ github.run_attempt }}"

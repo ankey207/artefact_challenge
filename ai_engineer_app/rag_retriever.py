@@ -256,7 +256,20 @@ def _retrieve_chunks_impl(
             mode = "keyword"
 
         if score > 0:
-            results.append({**chunk, "score": round(score, 4), "retrieval_mode": mode})
+            provenance = {
+                "source_page": chunk.get("source_page"),
+                "source_type": chunk.get("source_type"),
+                "source_id": chunk.get("source_id"),
+                "chunk_id": chunk.get("chunk_id"),
+            }
+            results.append(
+                {
+                    **chunk,
+                    "score": round(score, 4),
+                    "retrieval_mode": mode,
+                    "provenance": provenance,
+                }
+            )
 
     results.sort(key=lambda x: x["score"], reverse=True)
     return results[:top_k]
@@ -319,5 +332,8 @@ def format_chunks_for_prompt(chunks: list[dict]) -> str:
     lines: list[str] = []
     for i, c in enumerate(chunks, 1):
         page_ref = f" (page {c['source_page']})" if c.get("source_page") else ""
-        lines.append(f"{i}. {c['chunk_text']}{page_ref}")
+        row_ref = ""
+        if c.get("source_type") and c.get("source_id"):
+            row_ref = f" [{c['source_type']}:{c['source_id']}; chunk:{c.get('chunk_id', 'n/a')}]"
+        lines.append(f"{i}. {c['chunk_text']}{page_ref}{row_ref}")
     return "\n".join(lines)

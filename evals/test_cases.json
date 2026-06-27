@@ -344,9 +344,62 @@
     "forbidden_claims": [],
     "expected_chunk_keywords": [],
     "expected_context": [],
+    "expected_source_pages": [],
+    "expected_source_ids": [],
     "expected_value": null,
     "tolerance": 0,
     "ground_truth": null,
+    "turns": []
+  },
+  {
+    "id": "CIT_02",
+    "category": "citation",
+    "question": "Resume les resultats dans la region du Tonkpi avec les sources.",
+    "expected_route": "rag",
+    "expected_answer_contains": [],
+    "expected_facts": [],
+    "forbidden_claims": [],
+    "expected_chunk_keywords": ["TONKPI"],
+    "expected_context": [],
+    "expected_source_pages": [33],
+    "expected_source_ids": ["cand_3d629447a2e5985e"],
+    "expected_value": null,
+    "tolerance": 0,
+    "ground_truth": "Les resultats du Tonkpi sont documentes dans les lignes de la region TONKPI, notamment autour des pages 32 et 33.",
+    "turns": []
+  },
+  {
+    "id": "CIT_03",
+    "category": "citation",
+    "question": "Donne une synthese narrative des resultats a Abobo en citant la page.",
+    "expected_route": "rag",
+    "expected_answer_contains": [],
+    "expected_facts": [],
+    "forbidden_claims": [],
+    "expected_chunk_keywords": ["ABOBO"],
+    "expected_context": [],
+    "expected_source_pages": [6],
+    "expected_source_ids": [],
+    "expected_value": null,
+    "tolerance": 0,
+    "ground_truth": "Abobo correspond a la circonscription 038 sur la page 6 du PDF extrait.",
+    "turns": []
+  },
+  {
+    "id": "CIT_04",
+    "category": "citation",
+    "question": "Explique les donnees de Aboude Attobrou Guessiguie Grand-Morie et cite la source.",
+    "expected_route": "rag",
+    "expected_answer_contains": [],
+    "expected_facts": [],
+    "forbidden_claims": [],
+    "expected_chunk_keywords": ["CIRCONSCRIPTION", "001"],
+    "expected_context": [],
+    "expected_source_pages": [1],
+    "expected_source_ids": ["cand_4075c1cb16c2d8cc"],
+    "expected_value": null,
+    "tolerance": 0,
+    "ground_truth": "Les resultats de cette zone de la circonscription 001 sont presents a la page 1.",
     "turns": []
   },
   {
@@ -455,6 +508,130 @@
       },
       {
         "question": "Quel candidat a obtenu le plus de voix parmi eux ?",
+        "is_setup": false
+      }
+    ]
+  },
+  {
+    "id": "CONV_03",
+    "category": "conversation",
+    "question": "Et a Adjame ?",
+    "expected_route": "sql",
+    "expected_answer_contains": [],
+    "expected_facts": [],
+    "forbidden_claims": [],
+    "expected_chunk_keywords": [],
+    "expected_context": ["ADJAME"],
+    "expected_value": null,
+    "tolerance": 0,
+    "ground_truth": "La question de suivi doit reutiliser l'intention resultats et remplacer la commune par ADJAME.",
+    "turns": [
+      {
+        "question": "Quels sont les resultats des elections a Abobo ?",
+        "is_setup": true
+      },
+      {
+        "question": "Et a Adjame ?",
+        "is_setup": false
+      }
+    ]
+  },
+  {
+    "id": "CONV_04",
+    "category": "conversation",
+    "question": "Compare maintenant ces deux communes.",
+    "expected_route": "sql",
+    "expected_answer_contains": [],
+    "expected_facts": [],
+    "forbidden_claims": [],
+    "expected_chunk_keywords": [],
+    "expected_context": ["ABOBO", "ADJAME"],
+    "expected_value": null,
+    "tolerance": 0,
+    "ground_truth": "La comparaison doit conserver ABOBO et ADJAME comme contexte actif.",
+    "turns": [
+      {
+        "question": "Donne les resultats a Abobo.",
+        "is_setup": true
+      },
+      {
+        "question": "Et a Adjame ?",
+        "is_setup": true
+      },
+      {
+        "question": "Compare maintenant ces deux communes.",
+        "is_setup": false
+      }
+    ]
+  },
+  {
+    "id": "CONV_05",
+    "category": "conversation",
+    "question": "Quel est son score ?",
+    "expected_route": "sql",
+    "expected_answer_contains": [],
+    "expected_facts": [],
+    "forbidden_claims": [],
+    "expected_chunk_keywords": [],
+    "expected_context": ["SAMY"],
+    "expected_value": null,
+    "tolerance": 0,
+    "ground_truth": "La question doit conserver le candidat Samy recherche au tour precedent.",
+    "turns": [
+      {
+        "question": "Je cherche un candidat du nom de Samy.",
+        "is_setup": true
+      },
+      {
+        "question": "Quel est son score ?",
+        "is_setup": false
+      }
+    ]
+  },
+  {
+    "id": "CONV_06",
+    "category": "conversation",
+    "question": "Et son parti ?",
+    "expected_route": "sql",
+    "expected_answer_contains": [],
+    "expected_facts": [],
+    "forbidden_claims": [],
+    "expected_chunk_keywords": [],
+    "expected_context": ["SAMY"],
+    "expected_value": null,
+    "tolerance": 0,
+    "ground_truth": "La question doit conserver le candidat Samy et repondre sur son parti.",
+    "turns": [
+      {
+        "question": "Je cherche un candidat du nom de Samy.",
+        "is_setup": true
+      },
+      {
+        "question": "Et son parti ?",
+        "is_setup": false
+      }
+    ]
+  },
+  {
+    "id": "CONV_07",
+    "category": "conversation",
+    "question": "Non, je voulais Abobo. Donne les resultats.",
+    "expected_route": "sql",
+    "expected_answer_contains": [],
+    "expected_facts": [],
+    "forbidden_claims": [],
+    "expected_chunk_keywords": [],
+    "expected_context": ["ABOBO"],
+    "expected_value": null,
+    "tolerance": 0,
+    "ground_truth": "La correction doit remplacer la commune precedente par ABOBO.",
+    "turns": [
+      {
+        "question": "Donne les resultats a Adjame.",
+        "is_setup": true
+      },
+      {
+        "question": "Non, je voulais Abobo. Donne les resultats.",
         "is_setup": false
       }
     ]
