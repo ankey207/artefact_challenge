@@ -419,6 +419,7 @@ Le champ optionnel `eval_category` permet de lancer une seule catégorie.
 ## Livrables et vérification rapide
 
 - Application Streamlit : `streamlit run app.py`
+- Interface web déployée : <https://artefact-challenge.streamlit.app/>
 - Base DuckDB reproductible : `python build_db.py docs/EDAN_2025_RESULTAT_NATIONAL_DETAILS.pdf`
 - Suite d'évaluation : `.venv\Scripts\python.exe evals\run_evals.py --langfuse-run-name edan-eval-main-v1`
 - CI de régression : `.github/workflows/ci.yml`
