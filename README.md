@@ -43,7 +43,15 @@ EDAN_LANGFUSE_ENABLED=true
 LANGFUSE_PUBLIC_KEY=your_langfuse_public_key
 LANGFUSE_SECRET_KEY=your_langfuse_secret_key
 LANGFUSE_BASE_URL=https://cloud.langfuse.com
+EDAN_LANGFUSE_PROMPTS_ENABLED=true
+EDAN_LANGFUSE_PROMPT_LABEL=production
+EDAN_LANGFUSE_CAPTURE_CONTENT=true
 ```
+
+Pour une démonstration ou une correction, `EDAN_LANGFUSE_CAPTURE_CONTENT=true`
+rend les questions, contextes et réponses lisibles dans Langfuse. En mode plus
+restrictif, laisser cette variable à `false` : l'application n'envoie alors que
+des empreintes et longueurs de contenu.
 
 ---
 
@@ -93,8 +101,7 @@ python -m ai_engineer_app.dataset_version
 
 ### Observabilité Langfuse
 
-Les exécutions de l'agent sont tracées exclusivement dans Langfuse. Aucune base
-SQLite locale d'observabilité n'est créée.
+Les exécutions de l'agent sont tracées exclusivement dans Langfuse.
 
 Chaque trace contient les identifiants de trace, session et utilisateur
 anonymisé, les versions chatbot/prompt/dataset, les nœuds LangGraph, les
@@ -140,6 +147,18 @@ JSON/CSV/JSONL local n'est généré.
 
 Les boutons pouce haut/bas de l'application alimentent les scores de feedback
 Langfuse.
+
+### Accès Langfuse
+
+Le dernier run complet validé est consultable dans Langfuse :
+
+- Run : `diagnostic-full-eval-final`
+- Résultat : `42/42` cas réussis, `pass_rate=100.0%`, `avg_score=0.998`
+- Lien : <https://cloud.langfuse.com/project/cmqu4snwl03r8ad0diq27f58x/datasets/cmqu9h2kp06t2ad0co3lrlsfy/runs/ae49030c-97a4-44fb-8100-f47ab91c6ff3>
+
+Le projet Langfuse a été partagé en lecture seule avec
+`fabrice.zapfack@artefact.com` pour permettre l'inspection des traces,
+sessions, coûts, latences, feedbacks et résultats d'évaluation.
 
 ---
 
@@ -370,6 +389,15 @@ Le module `ai_engineer_app/entity_resolver.py` :
 Les résultats sont envoyés dans Langfuse sous forme de dataset runs et de
 scores natifs. Aucun rapport local ni page Streamlit dédiée n'est nécessaire.
 
+Pour apprécier les résultats dans Langfuse :
+
+1. Ouvrir le dataset run.
+2. Vérifier le taux de réussite via le score booléen `pass`.
+3. Contrôler le score numérique `score`, la latence `latency_ms` et la
+   catégorie `category`.
+4. Ouvrir une trace individuelle pour inspecter la question, le routage, le SQL
+   ou les chunks RAG, les appels modèle, la réponse finale et les scores.
+
 ---
 
 ## Intégration continue
@@ -385,6 +413,17 @@ Le job `evals` nécessite les secrets `DEEPSEEK_API_KEY`,
 `LANGFUSE_PUBLIC_KEY` et `LANGFUSE_SECRET_KEY` configurés dans les paramètres
 du dépôt GitHub. Il ne s'exécute que manuellement avec `run_evals=true`.
 Le champ optionnel `eval_category` permet de lancer une seule catégorie.
+
+---
+
+## Livrables et vérification rapide
+
+- Application Streamlit : `streamlit run app.py`
+- Base DuckDB reproductible : `python build_db.py docs/EDAN_2025_RESULTAT_NATIONAL_DETAILS.pdf`
+- Suite d'évaluation : `.venv\Scripts\python.exe evals\run_evals.py --langfuse-run-name edan-eval-main-v1`
+- CI de régression : `.github/workflows/ci.yml`
+- Compte rendu Word : `docs/Compte_rendu_livrable_challenge_ai_engineer.docx`
+- Run Langfuse de référence : <https://cloud.langfuse.com/project/cmqu4snwl03r8ad0diq27f58x/datasets/cmqu9h2kp06t2ad0co3lrlsfy/runs/ae49030c-97a4-44fb-8100-f47ab91c6ff3>
 
 ---
 
