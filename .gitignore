@@ -31,6 +31,7 @@ data/query_cache.sqlite3-wal
 # Documentation and derived datasets: keep only the source PDF
 docs/*
 !docs/EDAN_2025_RESULTAT_NATIONAL_DETAILS.pdf
+!docs/Compte_rendu_livrable_challenge_ai_engineer.docx
 
 # Claude/Codex internal
 .claude/

@@ -182,7 +182,10 @@ def run_langfuse_experiment(
         **_: dict[str, Any],
     ) -> list[Evaluation]:
         del input, expected_output
-        case = dict((metadata or {}).get("case") or {})
+        case_id = str((metadata or {}).get("case_id", ""))
+        case = dict((metadata or {}).get("case") or case_by_id.get(case_id) or {})
+        if not case:
+            raise RuntimeError(f"Missing evaluation case metadata for {case_id!r}.")
         graded = grade_case(case, output.get("result", {}), float(output.get("latency_ms") or 0.0))
         graded_by_case_id[str(graded.get("id"))] = graded
         eval_metadata = {

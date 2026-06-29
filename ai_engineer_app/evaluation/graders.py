@@ -11,6 +11,7 @@ The LLM judge is injected as a supplementary field only and never flips pass/fai
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from .metrics import (
@@ -197,11 +198,20 @@ def grade_fidelity(
 
 def grade_conversation(case: dict, result: dict) -> dict[str, Any]:
     answer = result.get("answer", "")
+    context_haystack = "\n".join(
+        [
+            str(answer or ""),
+            str(result.get("safe_sql") or result.get("sql") or ""),
+            str(result.get("standalone_question") or ""),
+            json.dumps(result.get("conversation_memory") or {}, ensure_ascii=False, default=str),
+        ]
+    )
     expected_context = case.get("expected_context", [])
-    metrics = conversation_retention(answer, expected_context)
+    metrics = conversation_retention(context_haystack, expected_context)
     return {
         **_base(case["id"], "conversation", metrics["pass"], metrics["score"]),
         **metrics,
+        "checked_fields": ["answer", "sql", "standalone_question", "conversation_memory"],
     }
 
 

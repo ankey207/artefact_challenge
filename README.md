@@ -155,7 +155,7 @@ Langfuse.
 
 ### Affichage des tableaux SQL
 
-L'agent retourne toujours une réponse narrative courte. Le tableau SQL n'est pas
+L'agent retourne toujours une réponse narrative courte. Un tableau n'est pas
 affiché systématiquement : il apparaît uniquement quand la demande utilisateur
 le justifie explicitement, par exemple avec « tableau », « classement »,
 « liste », « top 10 » ou « ranking ». Ce choix garde l'interface lisible pour
@@ -400,7 +400,3 @@ Le champ optionnel `eval_category` permet de lancer une seule catégorie.
 | Streaming partiel | La réponse finale est streamée ; les appels JSON internes de routage, contextualisation et génération SQL restent non-streamés pour garantir des sorties structurées validables |
 | Langue de l'interface | L'UI Streamlit est en français ; l'agent répond dans la langue de l'utilisateur (FR/EN/ES/AR/PT) |
 | Modèle local offline uniquement | Le modèle d'embedding (`paraphrase-multilingual-MiniLM-L12-v2`) doit être téléchargé une première fois (~470 MB) |
-
-### Prochaines étapes envisagées
-
-- **Compression auto du contexte** — pour les conversations longues dépassant la fenêtre de contexte du LLM
